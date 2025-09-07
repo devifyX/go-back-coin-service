@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package coins.v1;
+option go_package = "api/coinsv1;coinsv1";
+
+// Simple account service for coins creation & depletion.
+service CoinsService {
+  // Create an account (id) with optional initial coins.
+  rpc CreateAccount(CreateRequest) returns (AccountReply);
+
+  // Deplete an amount of coins from an account.
+  rpc Deplete(DepleteRequest) returns (AccountReply);
+}
+
+message CreateRequest {
+  string id = 1;       // required
+  int64 initial = 2;   // optional, default 0
+}
+
+message DepleteRequest {
+  string id = 1;       // required
+  int64 amount = 2;    // required, must be > 0
+}
+
+message AccountReply {
+  string id = 1;
+  int64 coins = 2;
+  string last_recharge_date = 3; // RFC3339
+  string last_usage_date = 4;    // RFC3339
+}

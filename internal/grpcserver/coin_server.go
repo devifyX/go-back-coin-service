@@ -1,0 +1,95 @@
+package grpcserver
+
+import (
+	"context"
+	"time"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
+	coinsv1 "coin-service/api/coinsv1"
+	dbpkg "coin-service/internal/db"
+)
+
+type CoinsServer struct {
+	coinsv1.UnimplementedCoinsServiceServer
+	Store *dbpkg.Store
+}
+
+func NewCoinsServer(store *dbpkg.Store) *CoinsServer {
+	return &CoinsServer{Store: store}
+}
+
+func (s *CoinsServer) CreateAccount(ctx context.Context, req *coinsv1.CreateRequest) (*coinsv1.AccountReply, error) {
+	if req.GetId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "id is required")
+	}
+	var initPtr *int64
+	if req.Initial != 0 {
+		v := req.Initial
+		initPtr = &v
+	}
+	acct, err := s.Store.CreateAccount(ctx, req.Id, initPtr)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "create: %v", err)
+	}
+	return toReply(acct), nil
+}
+
+func (s *CoinsServer) Deplete(ctx context.Context, req *coinsv1.DepleteRequest) (*coinsv1.AccountReply, error) {
+	if req.GetId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "id is required")
+	}
+	if req.Amount <= 0 {
+		return nil, status.Error(codes.InvalidArgument, "amount must be > 0")
+	}
+	acct, err := s.Store.Use(ctx, req.Id, req.Amount)
+	if err != nil {
+		// Map some common errors
+		switch {
+		case isInsufficient(err):
+			return nil, status.Error(codes.FailedPrecondition, err.Error())
+		default:
+			return nil, status.Errorf(codes.Internal, "deplete: %v", err)
+		}
+	}
+	return toReply(acct), nil
+}
+
+func toReply(a *dbpkg.Account) *coinsv1.AccountReply {
+	if a == nil {
+		return &coinsv1.AccountReply{}
+	}
+	var lr, lu string
+	if a.LastRechargeDate != nil {
+		lr = a.LastRechargeDate.UTC().Format(time.RFC3339)
+	}
+	if a.LastUsageDate != nil {
+		lu = a.LastUsageDate.UTC().Format(time.RFC3339)
+	}
+	return &coinsv1.AccountReply{
+		Id:               a.ID,
+		Coins:            a.Coins,
+		LastRechargeDate: lr,
+		LastUsageDate:    lu,
+	}
+}
+
+func isInsufficient(err error) bool {
+	// crude check for the error we return in db.Use()
+	return err != nil && (contains(err.Error(), "insufficient balance"))
+}
+
+func contains(s, sub string) bool {
+	return len(s) >= len(sub) && (func() bool { return (find(s, sub) >= 0) })()
+}
+
+func find(s, sub string) int {
+	// small inline to avoid importing strings; using std strings.Index is fine too
+	for i := 0; i+len(sub) <= len(s); i++ {
+		if s[i:i+len(sub)] == sub {
+			return i
+		}
+	}
+	return -1
+}
