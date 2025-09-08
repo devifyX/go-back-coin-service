@@ -7,8 +7,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	coinsv1 "coin-service/api/coinsv1"
-	dbpkg "coin-service/internal/db"
+	coinsv1 "github.com/devifyX/go-back-coin-service/api/coinsv1"
+	dbpkg "github.com/devifyX/go-back-coin-service/internal/db"
 )
 
 type CoinsServer struct {

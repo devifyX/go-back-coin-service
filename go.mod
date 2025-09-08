@@ -1,4 +1,4 @@
-module coin-service
+module github.com/devifyX/go-back-coin-service
 
 go 1.25.0
 

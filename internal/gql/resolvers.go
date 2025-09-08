@@ -6,7 +6,7 @@ import (
 
 	"github.com/graphql-go/graphql"
 
-	dbpkg "coin-service/internal/db"
+	dbpkg "github.com/devifyX/go-back-coin-service/internal/db"
 )
 
 // Resolvers holds dependencies used by GraphQL resolvers.
@@ -46,7 +46,8 @@ func (r *Resolvers) mctx(p graphql.ResolveParams) (context.Context, context.Canc
 
 func (r *Resolvers) GetUser() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (any, error) {
-		ctx, cancel := r.qctx(p); defer cancel()
+		ctx, cancel := r.qctx(p)
+		defer cancel()
 		id := p.Args["id"].(string)
 		return r.Store.GetAccount(ctx, id)
 	}
@@ -54,7 +55,8 @@ func (r *Resolvers) GetUser() graphql.FieldResolveFn {
 
 func (r *Resolvers) ListUsers() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (any, error) {
-		ctx, cancel := r.qctx(p); defer cancel()
+		ctx, cancel := r.qctx(p)
+		defer cancel()
 		limit, _ := p.Args["limit"].(int)
 		offset, _ := p.Args["offset"].(int)
 		return r.Store.ListAccounts(ctx, limit, offset)
@@ -63,7 +65,8 @@ func (r *Resolvers) ListUsers() graphql.FieldResolveFn {
 
 func (r *Resolvers) GetBalance() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (any, error) {
-		ctx, cancel := r.qctx(p); defer cancel()
+		ctx, cancel := r.qctx(p)
+		defer cancel()
 		id := p.Args["id"].(string)
 		acct, err := r.Store.GetAccount(ctx, id)
 		if err != nil || acct == nil {
@@ -75,13 +78,16 @@ func (r *Resolvers) GetBalance() graphql.FieldResolveFn {
 
 func (r *Resolvers) GetUsersByCoinsRange() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (any, error) {
-		ctx, cancel := r.qctx(p); defer cancel()
+		ctx, cancel := r.qctx(p)
+		defer cancel()
 		var minPtr, maxPtr *int64
 		if v, ok := p.Args["min"].(int); ok {
-			vv := int64(v); minPtr = &vv
+			vv := int64(v)
+			minPtr = &vv
 		}
 		if v, ok := p.Args["max"].(int); ok {
-			vv := int64(v); maxPtr = &vv
+			vv := int64(v)
+			maxPtr = &vv
 		}
 		return r.Store.ListAccountsByCoinsRange(ctx, minPtr, maxPtr)
 	}
@@ -89,7 +95,8 @@ func (r *Resolvers) GetUsersByCoinsRange() graphql.FieldResolveFn {
 
 func (r *Resolvers) GetRecentRecharges() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (any, error) {
-		ctx, cancel := r.qctx(p); defer cancel()
+		ctx, cancel := r.qctx(p)
+		defer cancel()
 		since := p.Args["since"].(time.Time)
 		return r.Store.ListRecentRecharges(ctx, since)
 	}
@@ -97,7 +104,8 @@ func (r *Resolvers) GetRecentRecharges() graphql.FieldResolveFn {
 
 func (r *Resolvers) GetInactiveSince() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (any, error) {
-		ctx, cancel := r.qctx(p); defer cancel()
+		ctx, cancel := r.qctx(p)
+		defer cancel()
 		before := p.Args["before"].(time.Time)
 		return r.Store.ListInactiveSince(ctx, before)
 	}
@@ -105,7 +113,8 @@ func (r *Resolvers) GetInactiveSince() graphql.FieldResolveFn {
 
 func (r *Resolvers) CountUsers() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (any, error) {
-		ctx, cancel := r.qctx(p); defer cancel()
+		ctx, cancel := r.qctx(p)
+		defer cancel()
 		n, err := r.Store.CountAccounts(ctx)
 		return int(n), err
 	}
@@ -113,7 +122,8 @@ func (r *Resolvers) CountUsers() graphql.FieldResolveFn {
 
 func (r *Resolvers) TotalCoins() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (any, error) {
-		ctx, cancel := r.qctx(p); defer cancel()
+		ctx, cancel := r.qctx(p)
+		defer cancel()
 		s, err := r.Store.SumCoins(ctx)
 		return int(s), err
 	}
@@ -121,7 +131,8 @@ func (r *Resolvers) TotalCoins() graphql.FieldResolveFn {
 
 func (r *Resolvers) ExistsUser() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (any, error) {
-		ctx, cancel := r.qctx(p); defer cancel()
+		ctx, cancel := r.qctx(p)
+		defer cancel()
 		id := p.Args["id"].(string)
 		return r.Store.UserExists(ctx, id)
 	}
@@ -131,7 +142,8 @@ func (r *Resolvers) ExistsUser() graphql.FieldResolveFn {
 
 func (r *Resolvers) CreateUser() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (any, error) {
-		ctx, cancel := r.mctx(p); defer cancel()
+		ctx, cancel := r.mctx(p)
+		defer cancel()
 		id := p.Args["id"].(string)
 		var coinsPtr *int64
 		if v, ok := p.Args["coins"].(int); ok {
@@ -144,7 +156,8 @@ func (r *Resolvers) CreateUser() graphql.FieldResolveFn {
 
 func (r *Resolvers) RechargeCoins() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (any, error) {
-		ctx, cancel := r.mctx(p); defer cancel()
+		ctx, cancel := r.mctx(p)
+		defer cancel()
 		id := p.Args["id"].(string)
 		amount := int64(p.Args["amount"].(int))
 		return r.Store.Recharge(ctx, id, amount)
@@ -153,7 +166,8 @@ func (r *Resolvers) RechargeCoins() graphql.FieldResolveFn {
 
 func (r *Resolvers) BatchRecharge() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (any, error) {
-		ctx, cancel := r.mctx(p); defer cancel()
+		ctx, cancel := r.mctx(p)
+		defer cancel()
 		raw := p.Args["ids"].([]any)
 		ids := make([]string, 0, len(raw))
 		for _, v := range raw {
@@ -167,7 +181,8 @@ func (r *Resolvers) BatchRecharge() graphql.FieldResolveFn {
 
 func (r *Resolvers) UseCoins() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (any, error) {
-		ctx, cancel := r.mctx(p); defer cancel()
+		ctx, cancel := r.mctx(p)
+		defer cancel()
 		id := p.Args["id"].(string)
 		amount := int64(p.Args["amount"].(int))
 		return r.Store.Use(ctx, id, amount)
@@ -176,7 +191,8 @@ func (r *Resolvers) UseCoins() graphql.FieldResolveFn {
 
 func (r *Resolvers) TransferCoins() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (any, error) {
-		ctx, cancel := r.mctx(p); defer cancel()
+		ctx, cancel := r.mctx(p)
+		defer cancel()
 		fromID := p.Args["fromId"].(string)
 		toID := p.Args["toId"].(string)
 		amount := int64(p.Args["amount"].(int))
@@ -193,7 +209,8 @@ func (r *Resolvers) TransferCoins() graphql.FieldResolveFn {
 
 func (r *Resolvers) SetCoins() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (any, error) {
-		ctx, cancel := r.mctx(p); defer cancel()
+		ctx, cancel := r.mctx(p)
+		defer cancel()
 		id := p.Args["id"].(string)
 		coins := int64(p.Args["coins"].(int))
 		return r.Store.SetCoinsExact(ctx, id, coins)
@@ -202,7 +219,8 @@ func (r *Resolvers) SetCoins() graphql.FieldResolveFn {
 
 func (r *Resolvers) TouchUsage() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (any, error) {
-		ctx, cancel := r.mctx(p); defer cancel()
+		ctx, cancel := r.mctx(p)
+		defer cancel()
 		id := p.Args["id"].(string)
 		return r.Store.TouchUsage(ctx, id)
 	}
@@ -210,7 +228,8 @@ func (r *Resolvers) TouchUsage() graphql.FieldResolveFn {
 
 func (r *Resolvers) DeleteUser() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (any, error) {
-		ctx, cancel := r.mctx(p); defer cancel()
+		ctx, cancel := r.mctx(p)
+		defer cancel()
 		id := p.Args["id"].(string)
 		return r.Store.DeleteAccount(ctx, id)
 	}

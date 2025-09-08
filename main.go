@@ -12,12 +12,12 @@ import (
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 
-	dbpkg "coin-service/internal/db"
-	gqlpkg "coin-service/internal/gql"
-	mw "coin-service/internal/middleware"
+	dbpkg "github.com/devifyX/go-back-coin-service/internal/db"
+	gqlpkg "github.com/devifyX/go-back-coin-service/internal/gql"
+	mw "github.com/devifyX/go-back-coin-service/internal/middleware"
 
-	coinsv1 "coin-service/api/coinsv1"
-	grpcserver "coin-service/internal/grpcserver"
+	coinsv1 "github.com/devifyX/go-back-coin-service/api/coinsv1"
+	grpcserver "github.com/devifyX/go-back-coin-service/internal/grpcserver"
 )
 
 func mustGetEnv(key string) string {

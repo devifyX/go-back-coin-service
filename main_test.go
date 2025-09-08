@@ -14,9 +14,9 @@ import (
 	"github.com/graphql-go/handler"
 	"github.com/joho/godotenv"
 
-	dbpkg "coin-service/internal/db"
-	gqlpkg "coin-service/internal/gql"
-	mw "coin-service/internal/middleware"
+	dbpkg "github.com/devifyX/go-back-coin-service/internal/db"
+	gqlpkg "github.com/devifyX/go-back-coin-service/internal/gql"
+	mw "github.com/devifyX/go-back-coin-service/internal/middleware"
 )
 
 // ---------- Test scaffolding ----------
