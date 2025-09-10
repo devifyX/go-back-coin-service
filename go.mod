@@ -10,10 +10,11 @@ require (
 	github.com/joho/godotenv v1.5.1
 	golang.org/x/time v0.13.0
 	google.golang.org/grpc v1.75.0
-	google.golang.org/protobuf v1.36.6
+	google.golang.org/protobuf v1.36.8
 )
 
 require (
+	github.com/devifyX/go-back-transaction-service v0.0.0-20250909140849-1648931039bf // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect

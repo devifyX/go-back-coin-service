@@ -4,8 +4,9 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-// NewSchema builds and returns the GraphQL schema wired to the provided resolvers.
+// NewSchema builds the GraphQL schema using the provided resolvers.
 func NewSchema(r *Resolvers) (graphql.Schema, error) {
+	// ----- Types -----
 	accountType := graphql.NewObject(graphql.ObjectConfig{
 		Name: "Account",
 		Fields: graphql.Fields{
@@ -28,14 +29,17 @@ func NewSchema(r *Resolvers) (graphql.Schema, error) {
 	query := graphql.NewObject(graphql.ObjectConfig{
 		Name: "Query",
 		Fields: graphql.Fields{
-			"getUser": {
+			// getUser(id: ID!): Account
+			"getUser": &graphql.Field{
 				Type: accountType,
 				Args: graphql.FieldConfigArgument{
 					"id": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.ID)},
 				},
 				Resolve: r.GetUser(),
 			},
-			"listUsers": {
+
+			// listUsers(limit: Int, offset: Int): [Account!]!
+			"listUsers": &graphql.Field{
 				Type: graphql.NewNonNull(graphql.NewList(graphql.NewNonNull(accountType))),
 				Args: graphql.FieldConfigArgument{
 					"limit":  &graphql.ArgumentConfig{Type: graphql.Int},
@@ -43,14 +47,18 @@ func NewSchema(r *Resolvers) (graphql.Schema, error) {
 				},
 				Resolve: r.ListUsers(),
 			},
-			"getBalance": {
+
+			// getBalance(id: ID!): Int!
+			"getBalance": &graphql.Field{
 				Type: graphql.NewNonNull(graphql.Int),
 				Args: graphql.FieldConfigArgument{
 					"id": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.ID)},
 				},
 				Resolve: r.GetBalance(),
 			},
-			"getUsersByCoinsRange": {
+
+			// getUsersByCoinsRange(min: Int, max: Int): [Account!]!
+			"getUsersByCoinsRange": &graphql.Field{
 				Type: graphql.NewNonNull(graphql.NewList(graphql.NewNonNull(accountType))),
 				Args: graphql.FieldConfigArgument{
 					"min": &graphql.ArgumentConfig{Type: graphql.Int},
@@ -58,29 +66,39 @@ func NewSchema(r *Resolvers) (graphql.Schema, error) {
 				},
 				Resolve: r.GetUsersByCoinsRange(),
 			},
-			"getRecentRecharges": {
+
+			// getRecentRecharges(since: DateTime!): [Account!]!
+			"getRecentRecharges": &graphql.Field{
 				Type: graphql.NewNonNull(graphql.NewList(graphql.NewNonNull(accountType))),
 				Args: graphql.FieldConfigArgument{
 					"since": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.DateTime)},
 				},
 				Resolve: r.GetRecentRecharges(),
 			},
-			"getInactiveSince": {
+
+			// getInactiveSince(before: DateTime!): [Account!]!
+			"getInactiveSince": &graphql.Field{
 				Type: graphql.NewNonNull(graphql.NewList(graphql.NewNonNull(accountType))),
 				Args: graphql.FieldConfigArgument{
 					"before": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.DateTime)},
 				},
 				Resolve: r.GetInactiveSince(),
 			},
-			"countUsers": {
+
+			// countUsers: Int!
+			"countUsers": &graphql.Field{
 				Type:    graphql.NewNonNull(graphql.Int),
 				Resolve: r.CountUsers(),
 			},
-			"totalCoins": {
+
+			// totalCoins: Int!
+			"totalCoins": &graphql.Field{
 				Type:    graphql.NewNonNull(graphql.Int),
 				Resolve: r.TotalCoins(),
 			},
-			"existsUser": {
+
+			// existsUser(id: ID!): Boolean!
+			"existsUser": &graphql.Field{
 				Type: graphql.NewNonNull(graphql.Boolean),
 				Args: graphql.FieldConfigArgument{
 					"id": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.ID)},
@@ -94,7 +112,8 @@ func NewSchema(r *Resolvers) (graphql.Schema, error) {
 	mutation := graphql.NewObject(graphql.ObjectConfig{
 		Name: "Mutation",
 		Fields: graphql.Fields{
-			"createUser": {
+			// createUser(id: ID!, coins: Int): Account
+			"createUser": &graphql.Field{
 				Type: accountType,
 				Args: graphql.FieldConfigArgument{
 					"id":    &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.ID)},
@@ -102,55 +121,81 @@ func NewSchema(r *Resolvers) (graphql.Schema, error) {
 				},
 				Resolve: r.CreateUser(),
 			},
-			"rechargeCoins": {
+
+			// rechargeCoins(id: ID!, amount: Int!, userId: ID!, dataId: String): Account
+			"rechargeCoins": &graphql.Field{
 				Type: accountType,
 				Args: graphql.FieldConfigArgument{
 					"id":     &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.ID)},
 					"amount": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+					"userId": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.ID)},
+					"dataId": &graphql.ArgumentConfig{Type: graphql.String},
 				},
 				Resolve: r.RechargeCoins(),
 			},
-			"batchRecharge": {
-				Type: graphql.NewNonNull(graphql.Int), // rows affected
+
+			// batchRecharge(ids: [ID!]!, amount: Int!, userId: ID!, dataId: String): Int!
+			"batchRecharge": &graphql.Field{
+				Type: graphql.NewNonNull(graphql.Int),
 				Args: graphql.FieldConfigArgument{
-					"ids":    &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.NewList(graphql.NewNonNull(graphql.ID)))},
+					"ids": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.NewList(graphql.NewNonNull(graphql.ID))),
+					},
 					"amount": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+					"userId": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.ID)},
+					"dataId": &graphql.ArgumentConfig{Type: graphql.String},
 				},
 				Resolve: r.BatchRecharge(),
 			},
-			"useCoins": {
+
+			// useCoins(id: ID!, amount: Int!, userId: ID!, dataId: String): Account
+			"useCoins": &graphql.Field{
 				Type: accountType,
 				Args: graphql.FieldConfigArgument{
 					"id":     &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.ID)},
 					"amount": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+					"userId": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.ID)},
+					"dataId": &graphql.ArgumentConfig{Type: graphql.String},
 				},
 				Resolve: r.UseCoins(),
 			},
-			"transferCoins": {
+
+			// transferCoins(fromId: ID!, toId: ID!, amount: Int!, userId: ID!, dataId: String): TransferResult
+			"transferCoins": &graphql.Field{
 				Type: transferResultType,
 				Args: graphql.FieldConfigArgument{
 					"fromId": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.ID)},
 					"toId":   &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.ID)},
 					"amount": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+					"userId": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.ID)},
+					"dataId": &graphql.ArgumentConfig{Type: graphql.String},
 				},
 				Resolve: r.TransferCoins(),
 			},
-			"setCoins": {
+
+			// setCoins(id: ID!, coins: Int!, userId: ID!, dataId: String): Account
+			"setCoins": &graphql.Field{
 				Type: accountType,
 				Args: graphql.FieldConfigArgument{
-					"id":    &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.ID)},
-					"coins": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+					"id":     &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.ID)},
+					"coins":  &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+					"userId": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.ID)},
+					"dataId": &graphql.ArgumentConfig{Type: graphql.String},
 				},
 				Resolve: r.SetCoins(),
 			},
-			"touchUsage": {
+
+			// touchUsage(id: ID!): Account
+			"touchUsage": &graphql.Field{
 				Type: accountType,
 				Args: graphql.FieldConfigArgument{
 					"id": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.ID)},
 				},
 				Resolve: r.TouchUsage(),
 			},
-			"deleteUser": {
+
+			// deleteUser(id: ID!): Boolean!
+			"deleteUser": &graphql.Field{
 				Type: graphql.NewNonNull(graphql.Boolean),
 				Args: graphql.FieldConfigArgument{
 					"id": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.ID)},
