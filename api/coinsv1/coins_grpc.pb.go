@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v6.32.0
-// source: api/coins.proto
+// source: api/coinsv1/coins.proto
 
 package coinsv1
 
@@ -27,11 +27,11 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// Simple account service for coins creation & depletion.
+// Service for coin account creation & depletion.
 type CoinsServiceClient interface {
 	// Create an account (id) with optional initial coins.
 	CreateAccount(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*AccountReply, error)
-	// Deplete an amount of coins from an account.
+	// Deplete an amount of coins from an account (requires user_id UUID).
 	Deplete(ctx context.Context, in *DepleteRequest, opts ...grpc.CallOption) (*AccountReply, error)
 }
 
@@ -67,11 +67,11 @@ func (c *coinsServiceClient) Deplete(ctx context.Context, in *DepleteRequest, op
 // All implementations must embed UnimplementedCoinsServiceServer
 // for forward compatibility.
 //
-// Simple account service for coins creation & depletion.
+// Service for coin account creation & depletion.
 type CoinsServiceServer interface {
 	// Create an account (id) with optional initial coins.
 	CreateAccount(context.Context, *CreateRequest) (*AccountReply, error)
-	// Deplete an amount of coins from an account.
+	// Deplete an amount of coins from an account (requires user_id UUID).
 	Deplete(context.Context, *DepleteRequest) (*AccountReply, error)
 	mustEmbedUnimplementedCoinsServiceServer()
 }
@@ -163,5 +163,5 @@ var CoinsService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/coins.proto",
+	Metadata: "api/coinsv1/coins.proto",
 }

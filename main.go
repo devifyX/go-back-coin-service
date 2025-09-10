@@ -15,6 +15,7 @@ import (
 	dbpkg "github.com/devifyX/go-back-coin-service/internal/db"
 	gqlpkg "github.com/devifyX/go-back-coin-service/internal/gql"
 	mw "github.com/devifyX/go-back-coin-service/internal/middleware"
+	txnotify "github.com/devifyX/go-back-coin-service/internal/txnotify"
 
 	coinsv1 "github.com/devifyX/go-back-coin-service/api/coinsv1"
 	grpcserver "github.com/devifyX/go-back-coin-service/internal/grpcserver"
@@ -36,7 +37,7 @@ func main() {
 
 	// --- DB setup
 	ctx := context.Background()
-	connURL := mustGetEnv("DATABASE_URL") // uses .env
+	connURL := mustGetEnv("DATABASE_URL") // uses .env if present
 	store, err := dbpkg.New(ctx, connURL)
 	if err != nil {
 		log.Fatalf("db connect: %v", err)
@@ -45,6 +46,20 @@ func main() {
 
 	if err := store.EnsureSchema(ctx); err != nil {
 		log.Fatalf("ensure schema: %v", err)
+	}
+
+	// --- Transactions gRPC notifier (used by db.Store)
+	txAddr := "localhost:6090"
+	notifier, err := txnotify.NewGRPC(txAddr) // uses grpc.WithInsecure() by default; pass creds in NewGRPC if needed
+	if err != nil {
+		log.Printf("WARNING: transactions notifier disabled (dial %s failed: %v)", txAddr, err)
+	} else {
+		// Optional defaults so you don't pass these every call
+		notifier.DefaultCoinID = "COIN"
+		notifier.DefaultPlatform = "coin-service"
+		store.Notifier = notifier
+		defer notifier.Close()
+		log.Printf("transactions notifier connected -> %s", txAddr)
 	}
 
 	// --- GraphQL setup
@@ -92,7 +107,7 @@ func main() {
 		http.NotFound(w, r)
 	})
 
-	// --- gRPC server (CreateAccount, Deplete)
+	// --- coin-service gRPC server (CreateAccount, Deplete, etc.)
 	grpcSrv := grpc.NewServer()
 	coinsSvc := grpcserver.NewCoinsServer(store)
 	coinsv1.RegisterCoinsServiceServer(grpcSrv, coinsSvc)

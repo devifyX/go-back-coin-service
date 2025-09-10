@@ -1,25 +1,27 @@
 syntax = "proto3";
 
 package coins.v1;
-option go_package = "api/coinsv1;coinsv1";
+option go_package = "github.com/devifyX/go-back-coin-service/api/coinsv1;coinsv1";
 
-// Simple account service for coins creation & depletion.
+// Service for coin account creation & depletion.
 service CoinsService {
   // Create an account (id) with optional initial coins.
   rpc CreateAccount(CreateRequest) returns (AccountReply);
 
-  // Deplete an amount of coins from an account.
+  // Deplete an amount of coins from an account (requires user_id UUID).
   rpc Deplete(DepleteRequest) returns (AccountReply);
 }
 
 message CreateRequest {
-  string id = 1;       // required
-  int64 initial = 2;   // optional, default 0
+  string id = 1;      // required (coin/account id)
+  int64 initial = 2;  // optional, default 0
 }
 
 message DepleteRequest {
-  string id = 1;       // required
-  int64 amount = 2;    // required, must be > 0
+  string id = 1;        // required (coin/account id)
+  int64 amount = 2;     // required, must be > 0
+  string user_id = 3;   // required (UUID) - actor responsible for depletion
+  string data_id = 4;   // optional event id (e.g., "order:12345")
 }
 
 message AccountReply {

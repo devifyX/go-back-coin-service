@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.8
 // 	protoc        v6.32.0
-// source: api/coins.proto
+// source: api/coinsv1/coins.proto
 
 package coinsv1
 
@@ -23,7 +23,7 @@ const (
 
 type CreateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`            // required
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`            // required (coin/account id)
 	Initial       int64                  `protobuf:"varint,2,opt,name=initial,proto3" json:"initial,omitempty"` // optional, default 0
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -31,7 +31,7 @@ type CreateRequest struct {
 
 func (x *CreateRequest) Reset() {
 	*x = CreateRequest{}
-	mi := &file_api_coins_proto_msgTypes[0]
+	mi := &file_api_coinsv1_coins_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +43,7 @@ func (x *CreateRequest) String() string {
 func (*CreateRequest) ProtoMessage() {}
 
 func (x *CreateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_coins_proto_msgTypes[0]
+	mi := &file_api_coinsv1_coins_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +56,7 @@ func (x *CreateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRequest.ProtoReflect.Descriptor instead.
 func (*CreateRequest) Descriptor() ([]byte, []int) {
-	return file_api_coins_proto_rawDescGZIP(), []int{0}
+	return file_api_coinsv1_coins_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *CreateRequest) GetId() string {
@@ -75,15 +75,17 @@ func (x *CreateRequest) GetInitial() int64 {
 
 type DepleteRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`          // required
-	Amount        int64                  `protobuf:"varint,2,opt,name=amount,proto3" json:"amount,omitempty"` // required, must be > 0
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                       // required (coin/account id)
+	Amount        int64                  `protobuf:"varint,2,opt,name=amount,proto3" json:"amount,omitempty"`              // required, must be > 0
+	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"` // required (UUID) - actor responsible for depletion
+	DataId        string                 `protobuf:"bytes,4,opt,name=data_id,json=dataId,proto3" json:"data_id,omitempty"` // optional event id (e.g., "order:12345")
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DepleteRequest) Reset() {
 	*x = DepleteRequest{}
-	mi := &file_api_coins_proto_msgTypes[1]
+	mi := &file_api_coinsv1_coins_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -95,7 +97,7 @@ func (x *DepleteRequest) String() string {
 func (*DepleteRequest) ProtoMessage() {}
 
 func (x *DepleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_coins_proto_msgTypes[1]
+	mi := &file_api_coinsv1_coins_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -108,7 +110,7 @@ func (x *DepleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DepleteRequest.ProtoReflect.Descriptor instead.
 func (*DepleteRequest) Descriptor() ([]byte, []int) {
-	return file_api_coins_proto_rawDescGZIP(), []int{1}
+	return file_api_coinsv1_coins_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *DepleteRequest) GetId() string {
@@ -125,6 +127,20 @@ func (x *DepleteRequest) GetAmount() int64 {
 	return 0
 }
 
+func (x *DepleteRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *DepleteRequest) GetDataId() string {
+	if x != nil {
+		return x.DataId
+	}
+	return ""
+}
+
 type AccountReply struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -137,7 +153,7 @@ type AccountReply struct {
 
 func (x *AccountReply) Reset() {
 	*x = AccountReply{}
-	mi := &file_api_coins_proto_msgTypes[2]
+	mi := &file_api_coinsv1_coins_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -149,7 +165,7 @@ func (x *AccountReply) String() string {
 func (*AccountReply) ProtoMessage() {}
 
 func (x *AccountReply) ProtoReflect() protoreflect.Message {
-	mi := &file_api_coins_proto_msgTypes[2]
+	mi := &file_api_coinsv1_coins_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -162,7 +178,7 @@ func (x *AccountReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AccountReply.ProtoReflect.Descriptor instead.
 func (*AccountReply) Descriptor() ([]byte, []int) {
-	return file_api_coins_proto_rawDescGZIP(), []int{2}
+	return file_api_coinsv1_coins_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *AccountReply) GetId() string {
@@ -193,17 +209,19 @@ func (x *AccountReply) GetLastUsageDate() string {
 	return ""
 }
 
-var File_api_coins_proto protoreflect.FileDescriptor
+var File_api_coinsv1_coins_proto protoreflect.FileDescriptor
 
-const file_api_coins_proto_rawDesc = "" +
+const file_api_coinsv1_coins_proto_rawDesc = "" +
 	"\n" +
-	"\x0fapi/coins.proto\x12\bcoins.v1\"9\n" +
+	"\x17api/coinsv1/coins.proto\x12\bcoins.v1\"9\n" +
 	"\rCreateRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
-	"\ainitial\x18\x02 \x01(\x03R\ainitial\"8\n" +
+	"\ainitial\x18\x02 \x01(\x03R\ainitial\"j\n" +
 	"\x0eDepleteRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
-	"\x06amount\x18\x02 \x01(\x03R\x06amount\"\x8a\x01\n" +
+	"\x06amount\x18\x02 \x01(\x03R\x06amount\x12\x17\n" +
+	"\auser_id\x18\x03 \x01(\tR\x06userId\x12\x17\n" +
+	"\adata_id\x18\x04 \x01(\tR\x06dataId\"\x8a\x01\n" +
 	"\fAccountReply\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05coins\x18\x02 \x01(\x03R\x05coins\x12,\n" +
@@ -211,27 +229,27 @@ const file_api_coins_proto_rawDesc = "" +
 	"\x0flast_usage_date\x18\x04 \x01(\tR\rlastUsageDate2\x8d\x01\n" +
 	"\fCoinsService\x12@\n" +
 	"\rCreateAccount\x12\x17.coins.v1.CreateRequest\x1a\x16.coins.v1.AccountReply\x12;\n" +
-	"\aDeplete\x12\x18.coins.v1.DepleteRequest\x1a\x16.coins.v1.AccountReplyB\x15Z\x13api/coinsv1;coinsv1b\x06proto3"
+	"\aDeplete\x12\x18.coins.v1.DepleteRequest\x1a\x16.coins.v1.AccountReplyB=Z;github.com/devifyX/go-back-coin-service/api/coinsv1;coinsv1b\x06proto3"
 
 var (
-	file_api_coins_proto_rawDescOnce sync.Once
-	file_api_coins_proto_rawDescData []byte
+	file_api_coinsv1_coins_proto_rawDescOnce sync.Once
+	file_api_coinsv1_coins_proto_rawDescData []byte
 )
 
-func file_api_coins_proto_rawDescGZIP() []byte {
-	file_api_coins_proto_rawDescOnce.Do(func() {
-		file_api_coins_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_coins_proto_rawDesc), len(file_api_coins_proto_rawDesc)))
+func file_api_coinsv1_coins_proto_rawDescGZIP() []byte {
+	file_api_coinsv1_coins_proto_rawDescOnce.Do(func() {
+		file_api_coinsv1_coins_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_coinsv1_coins_proto_rawDesc), len(file_api_coinsv1_coins_proto_rawDesc)))
 	})
-	return file_api_coins_proto_rawDescData
+	return file_api_coinsv1_coins_proto_rawDescData
 }
 
-var file_api_coins_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_api_coins_proto_goTypes = []any{
+var file_api_coinsv1_coins_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_api_coinsv1_coins_proto_goTypes = []any{
 	(*CreateRequest)(nil),  // 0: coins.v1.CreateRequest
 	(*DepleteRequest)(nil), // 1: coins.v1.DepleteRequest
 	(*AccountReply)(nil),   // 2: coins.v1.AccountReply
 }
-var file_api_coins_proto_depIdxs = []int32{
+var file_api_coinsv1_coins_proto_depIdxs = []int32{
 	0, // 0: coins.v1.CoinsService.CreateAccount:input_type -> coins.v1.CreateRequest
 	1, // 1: coins.v1.CoinsService.Deplete:input_type -> coins.v1.DepleteRequest
 	2, // 2: coins.v1.CoinsService.CreateAccount:output_type -> coins.v1.AccountReply
@@ -243,26 +261,26 @@ var file_api_coins_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_api_coins_proto_init() }
-func file_api_coins_proto_init() {
-	if File_api_coins_proto != nil {
+func init() { file_api_coinsv1_coins_proto_init() }
+func file_api_coinsv1_coins_proto_init() {
+	if File_api_coinsv1_coins_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_coins_proto_rawDesc), len(file_api_coins_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_coinsv1_coins_proto_rawDesc), len(file_api_coinsv1_coins_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_api_coins_proto_goTypes,
-		DependencyIndexes: file_api_coins_proto_depIdxs,
-		MessageInfos:      file_api_coins_proto_msgTypes,
+		GoTypes:           file_api_coinsv1_coins_proto_goTypes,
+		DependencyIndexes: file_api_coinsv1_coins_proto_depIdxs,
+		MessageInfos:      file_api_coinsv1_coins_proto_msgTypes,
 	}.Build()
-	File_api_coins_proto = out.File
-	file_api_coins_proto_goTypes = nil
-	file_api_coins_proto_depIdxs = nil
+	File_api_coinsv1_coins_proto = out.File
+	file_api_coinsv1_coins_proto_goTypes = nil
+	file_api_coinsv1_coins_proto_depIdxs = nil
 }

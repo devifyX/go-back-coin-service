@@ -3,11 +3,13 @@ module github.com/devifyX/go-back-coin-service
 go 1.25.0
 
 require (
+	github.com/devifyX/go-back-transaction-service v0.0.0-20250909140849-1648931039bf
+	github.com/google/uuid v1.6.0
 	github.com/graphql-go/graphql v0.8.1
 	github.com/graphql-go/handler v0.2.4
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/joho/godotenv v1.5.1
-	golang.org/x/time v0.12.0
+	golang.org/x/time v0.13.0
 	google.golang.org/grpc v1.75.0
 	google.golang.org/protobuf v1.36.8
 )
